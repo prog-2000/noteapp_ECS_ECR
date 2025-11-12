@@ -9,26 +9,26 @@ services:
       - "80:80"
     restart: always
     depends_on:
-      - django_app
+      - node_js
     networks:
       - notes-app-nw
 
-  django_app:
+  node_js:
     build:
       context: .
       dockerfile: Dockerfile
-    image: 014195623020.dkr.ecr.eu-north-1.amazonaws.com/django_app:${IMAGE_TAG}
-    container_name: "django_cont"
+    image: 014195623020.dkr.ecr.eu-north-1.amazonaws.com/node_js:${IMAGE_TAG}
+    container_name: "nodejs_cont"
     ports:
       - "8000:8000"
-    command: sh -c "python manage.py migrate --noinput && gunicorn notesapp.wsgi --bind 0.0.0.0:8000"
+    command: sh -c "node server.js"
     env_file:
       - ".env"
     depends_on:
       - db
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/admin || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
