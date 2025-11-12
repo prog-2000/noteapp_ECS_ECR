@@ -1,0 +1,3 @@
+# sock file
+data/mysql/db/mysql.sock
+*.sock
