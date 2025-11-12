@@ -55,4 +55,4 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: note_app_sv
           cluster: note_app
-          wait-for-service-stability: true
+          wait-for-service-stability: false
