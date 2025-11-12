@@ -1,4 +1,4 @@
-name: NodeJs app deploy
+name: Django app deploy
 
 on:
   push:
@@ -27,25 +27,24 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 4: Build, tag, and push Docker image to ECR
-      - name: Build, tag, and push image to ECR
+      # Step 4: Build and push image with Docker Compose
+      - name: Build and push Django app image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-          REPOSITORY: noteapp
         run: |
-          docker build -t $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker compose -f docker-compose.yml build django_app
+          docker compose -f docker-compose.yml push django_app
+          echo "image=$ECR_REGISTRY/django_app:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # Step 5: Render ECS task definition with new image
       - name: Render ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: note_app_tkf.json
-          container-name: note-app_container
+          task-definition: node_js_td.json  # path to your ECS task definition file
+          container-name: nodejs_app          # must match ECS task definition container name
           image: ${{ steps.build-image.outputs.image }}
 
       # Step 6: Deploy ECS task definition
@@ -53,6 +52,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: note_app_sv
-          cluster: note_app
-          wait-for-service-stability: false
+          service: node_js_app                # your ECS service name
+          cluster: CICD_Cluster            # your ECS cluster name
+          wait-for-service-stability: true

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   nginx:
     build: ./nginx
-    image: nginx
+    image: 014195623020.dkr.ecr.eu-north-1.amazonaws.com/nginx:${IMAGE_TAG}
     container_name: "nginx_cont"
     ports:
       - "80:80"
@@ -16,7 +16,8 @@ services:
   django_app:
     build:
       context: .
-    image: django_app
+      dockerfile: Dockerfile
+    image: 014195623020.dkr.ecr.eu-north-1.amazonaws.com/django_app:${IMAGE_TAG}
     container_name: "django_cont"
     ports:
       - "8000:8000"
@@ -36,7 +37,7 @@ services:
       - notes-app-nw
 
   db:
-    image: mysql
+    image: mysql:8
     container_name: "db_cont"
     environment:
       - MYSQL_ROOT_PASSWORD=root
